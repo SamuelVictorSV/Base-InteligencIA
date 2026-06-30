@@ -1,4 +1,4 @@
-<style>
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root{
@@ -410,5 +410,5 @@ h1{
   .wrap{ padding:18px 14px 70px; }
   h1{ font-size:22px; }
   .card-head{ padding:13px 13px; }
+
 }
-</style>
