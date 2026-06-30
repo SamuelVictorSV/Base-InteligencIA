@@ -2,9 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Base de conhecimento</title>
+<title>Console de Atendimento</title>
 <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY730YvmEGifdvVE5jWRgYKAv4MwYvCmevBBDCFYBsY78rRn7H2EoSvm0&s=10">
 <link rel="stylesheet" href="styles.css">
+
 </head>
 <body>
 
@@ -75,8 +76,7 @@
 
 <div class="toast" id="toast"></div>
 
-/* ---tela login de admin  ---*/
-  
+<!--tela login de admin -->
 <div class="overlay" id="adminOverlay">
   <div class="modal" style="max-width:380px;">
     <h2>Acesso administrador</h2>
@@ -98,9 +98,8 @@
 </div>
 
 <script type="module">
-  
-/* ---Conexão com BD  ---*/
-  
+<!--Conexão com a BD -->
+
 const firebaseConfig = {
     apiKey: "AIzaSyBFITSbj8u6PPVPUB6ZAL54iRhWiohyIK0",
     authDomain: "base-inteligencia.firebaseapp.com",
@@ -139,7 +138,7 @@ function normalize(str){
 }
 function uid(){ return 'kb_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
 
-/* --- Problema cadastrados na BD  ---*/
+<!--Problema cadastrados -->
 
 function defaultEntries(){
   return [
@@ -200,7 +199,7 @@ async function persist(){
 
 function showBanner(){ document.getElementById('banner').style.display = 'block'; }
 
-<!--Autenticação administrador -->
+/* ---------- admin (Firebase Authentication) ---------- */
 function startAuthListener(){
   onAuthStateChanged(auth, (user) => {
     isAdmin = !!user;
@@ -460,7 +459,7 @@ document.getElementById('overlay').addEventListener('click', (ev) => {
 
 document.getElementById('search').addEventListener('input', render);
 
-/* --- importar / exportar ---*/
+/* ---------- exportar / importar .txt ---------- */
 function buildTxt(list){
   return list.map(e => {
     const passos = (e.passos_abertura||[]).map((p,i) => `${i+1}. ${p}`).join('\n');
