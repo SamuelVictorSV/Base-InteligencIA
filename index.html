@@ -75,7 +75,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!--tela login de admin -->
+/* ---tela login de admin  ---*/
   
 <div class="overlay" id="adminOverlay">
   <div class="modal" style="max-width:380px;">
@@ -99,7 +99,7 @@
 
 <script type="module">
   
-<!--Conexão com BD -->
+/* ---Conexão com BD  ---*/
   
 const firebaseConfig = {
     apiKey: "AIzaSyBFITSbj8u6PPVPUB6ZAL54iRhWiohyIK0",
@@ -139,7 +139,7 @@ function normalize(str){
 }
 function uid(){ return 'kb_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
 
-  <!--Problema cadastrados na BD-->
+/* --- Problema cadastrados na BD  ---*/
 
 function defaultEntries(){
   return [
@@ -460,7 +460,7 @@ document.getElementById('overlay').addEventListener('click', (ev) => {
 
 document.getElementById('search').addEventListener('input', render);
 
-<!--importar / exportar -->
+/* --- importar / exportar ---*/
 function buildTxt(list){
   return list.map(e => {
     const passos = (e.passos_abertura||[]).map((p,i) => `${i+1}. ${p}`).join('\n');
