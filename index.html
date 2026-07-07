@@ -449,7 +449,7 @@ h1{
 
 </div>
 
-<!-- Modal -->
+<!-- Caixa de passo a passo -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <h2 id="modalTitle">Novo problema</h2>
@@ -477,6 +477,10 @@ h1{
       <div class="field">
         <label>Texto pronto de fechamento</label>
         <textarea id="f_fechamento" placeholder="Chamado encerrado. Sinal normalizado e equipamento reiniciado. Cliente orientado a contatar novamente caso o problema persista."></textarea>
+      </div>
+      <div class="field">
+        <label>Exceções <span class="hint">(uma por linha — casos fora do fluxo normal)</span></label>
+        <textarea id="f_excecoes" placeholder="Cliente empresarial → escalar para N2 direto&#10;Já reiniciou 3x → não tentar reiniciar, abrir incidente&#10;Fora do horário comercial → registrar e retornar amanhã"></textarea>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" id="btnCancel">Cancelar</button>
