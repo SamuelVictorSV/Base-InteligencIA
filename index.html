@@ -2,8 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Base conhecimento</title>
-<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY730YvmEGifdvVE5jWRgYKAv4MwYvCmevBBDCFYBsY78rRn7H2EoSvm0&s=10">
+<title>Base de conhecimento</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -156,6 +155,19 @@ h1{
 }
 .btn-icon:hover{ color:var(--text); border-color:var(--text-faint); }
 .btn-icon.danger:hover{ color:var(--danger); border-color:var(--danger); }
+
+.excecoes-list{ margin:0; padding:0; list-style:none; }
+.excecoes-list li{
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:13.5px; line-height:1.5;
+  margin-bottom:6px; color:var(--text);
+}
+.excecoes-list li::before{
+  content:"⚠️";
+  flex-shrink:0;
+  margin-top:1px;
+  font-size:13px;
+}
 
 /* ---------- admin bar ---------- */
 .admin-link{
@@ -478,6 +490,10 @@ h1{
         <label>Texto pronto de fechamento</label>
         <textarea id="f_fechamento" placeholder="Chamado encerrado. Sinal normalizado e equipamento reiniciado. Cliente orientado a contatar novamente caso o problema persista."></textarea>
       </div>
+      <div class="field">
+        <label>Exceções <span class="hint">(uma por linha — casos fora do fluxo normal)</span></label>
+        <textarea id="f_excecoes" placeholder="Cliente empresarial → escalar para N2 direto&#10;Já reiniciou 3x → não tentar reiniciar, abrir incidente&#10;Fora do horário comercial → registrar e retornar amanhã"></textarea>
+      </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" id="btnCancel">Cancelar</button>
         <button type="submit" class="btn btn-accent">Salvar</button>
@@ -558,7 +574,8 @@ function defaultEntries(){
       passos_abertura: ['Abrir chamado em Suporte Técnico > Conexão','Selecionar prioridade Média','Vincular ao contrato do cliente'],
       descricao_pronta: 'Cliente relata lentidão na conexão. Verificado sinal remotamente e reiniciado equipamento.',
       informacoes_necessarias: ['Velocidade contratada','Horário em que percebeu o problema','Se outros dispositivos também são afetados'],
-      texto_fechamento: 'Chamado encerrado. Sinal normalizado e equipamento reiniciado remotamente. Cliente orientado a contatar novamente caso o problema persista.'
+      texto_fechamento: 'Chamado encerrado. Sinal normalizado e equipamento reiniciado remotamente. Cliente orientado a contatar novamente caso o problema persista.',
+      excecoes: ['Cliente empresarial → selecionar prioridade Alta e escalar para N2','Já reiniciou 3x ou mais → não tentar reiniciar, abrir incidente imediato','Fora do horário comercial → registrar chamado e informar retorno no próximo dia útil']
     },
     {
       id: uid(),
@@ -567,7 +584,8 @@ function defaultEntries(){
       passos_abertura: ['Abrir chamado em Suporte Técnico > Acesso','Confirmar identidade do cliente','Selecionar categoria "Reset de senha"'],
       descricao_pronta: 'Cliente solicitou reset de senha de acesso ao sistema. Identidade confirmada via dados cadastrais.',
       informacoes_necessarias: ['Nome completo / CPF para validação','E-mail ou usuário cadastrado'],
-      texto_fechamento: 'Senha resetada com sucesso. Cliente orientado a criar nova senha no primeiro acesso.'
+      texto_fechamento: 'Senha resetada com sucesso. Cliente orientado a criar nova senha no primeiro acesso.',
+      excecoes: ['Cliente bloqueado por tentativas → desbloquear conta antes de resetar a senha','Usuário não encontrado no sistema → verificar se está no domínio correto']
     },
     {
       id: uid(),
@@ -576,7 +594,8 @@ function defaultEntries(){
       passos_abertura: ['Abrir chamado em Suporte Técnico > Acesso','Verificar status da conta do cliente','Selecionar categoria "Liberação de acesso"'],
       descricao_pronta: 'Cliente sem acesso ao sistema. Verificado status da conta e permissões vinculadas.',
       informacoes_necessarias: ['Sistema/módulo que está tentando acessar','Mensagem de erro exibida, se houver'],
-      texto_fechamento: 'Acesso liberado após verificação de permissões. Cliente confirmou conseguir acessar normalmente.'
+      texto_fechamento: 'Acesso liberado após verificação de permissões. Cliente confirmou conseguir acessar normalmente.',
+      excecoes: ['Conta expirada → renovar contrato antes de liberar acesso','Acesso nunca funcionou → abrir chamado de novo cadastro, não de liberação']
     }
   ];
 }
@@ -733,6 +752,7 @@ function cardHtml(e, isBestMatch){
   const tagsHtml = (e.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
   const stepsHtml = (e.passos_abertura||[]).map(s => `<li>${escapeHtml(s)}</li>`).join('');
   const infosHtml = (e.informacoes_necessarias||[]).map(i => `<li>${escapeHtml(i)}</li>`).join('');
+  const excecoesHtml = (e.excecoes||[]).map(ex => `<li>${escapeHtml(ex)}</li>`).join('');
   const isConfirming = confirmDeleteId === e.id;
 
   return `
@@ -779,6 +799,11 @@ function cardHtml(e, isBestMatch){
         </div>
         <div class="text-block">${escapeHtml(e.texto_fechamento) || '—'}</div>
       </div>
+      ${excecoesHtml ? `
+      <div class="section">
+        <div class="section-label" style="color:var(--accent);">Exceções</div>
+        <ul class="excecoes-list">${excecoesHtml}</ul>
+      </div>` : ''}
     </div>
   </div>`;
 }
@@ -819,6 +844,7 @@ function openModal(entry){
   document.getElementById('f_descricao').value = entry ? entry.descricao_pronta : '';
   document.getElementById('f_infos').value = entry ? (entry.informacoes_necessarias||[]).join('\n') : '';
   document.getElementById('f_fechamento').value = entry ? entry.texto_fechamento : '';
+  document.getElementById('f_excecoes').value = entry ? (entry.excecoes||[]).join('\n') : '';
   document.getElementById('overlay').classList.add('show');
   setTimeout(() => document.getElementById('f_titulo').focus(), 50);
 }
@@ -844,7 +870,8 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
     passos_abertura: splitLines(document.getElementById('f_passos').value),
     descricao_pronta: document.getElementById('f_descricao').value.trim(),
     informacoes_necessarias: splitLines(document.getElementById('f_infos').value),
-    texto_fechamento: document.getElementById('f_fechamento').value.trim()
+    texto_fechamento: document.getElementById('f_fechamento').value.trim(),
+    excecoes: splitLines(document.getElementById('f_excecoes').value)
   };
   if (!data.titulo) return;
 
@@ -885,6 +912,8 @@ function buildTxt(list){
       infos,
       'FECHAMENTO:',
       e.texto_fechamento || '',
+      'EXCECOES:',
+      (e.excecoes||[]).map((ex,i) => `${i+1}. ${ex}`).join('\n'),
       '===FIM==='
     ].join('\n');
   }).join('\n\n');
@@ -902,6 +931,7 @@ function parseTxt(content){
     const clean = (l) => l.replace(/^\s*(\d+[\.\)]|-|\*)\s*/, '').trim();
     if (mode === 'passos') current.passos_abertura = buffer.map(clean).filter(Boolean);
     else if (mode === 'informacoes') current.informacoes_necessarias = buffer.map(clean).filter(Boolean);
+    else if (mode === 'excecoes') current.excecoes = buffer.map(clean).filter(Boolean);
     else if (mode === 'descricao') current.descricao_pronta = buffer.join('\n').trim();
     else if (mode === 'fechamento') current.texto_fechamento = buffer.join('\n').trim();
     buffer = [];
@@ -911,7 +941,7 @@ function parseTxt(content){
     const t = raw.trim();
     if (t === '===PROBLEMA==='){
       flushBuffer();
-      current = { id: uid(), titulo:'', tags:[], passos_abertura:[], descricao_pronta:'', informacoes_necessarias:[], texto_fechamento:'' };
+      current = { id: uid(), titulo:'', tags:[], passos_abertura:[], descricao_pronta:'', informacoes_necessarias:[], texto_fechamento:'', excecoes:[] };
       mode = null;
       continue;
     }
@@ -928,6 +958,7 @@ function parseTxt(content){
     if (/^DESCRICAO:/i.test(t)){ flushBuffer(); mode = 'descricao'; continue; }
     if (/^INFORMACOES:/i.test(t)){ flushBuffer(); mode = 'informacoes'; continue; }
     if (/^FECHAMENTO:/i.test(t)){ flushBuffer(); mode = 'fechamento'; continue; }
+    if (/^EXCECOES:/i.test(t)){ flushBuffer(); mode = 'excecoes'; continue; }
     if (mode) buffer.push(raw);
   }
   flushBuffer();
